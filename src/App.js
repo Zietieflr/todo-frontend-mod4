@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import { postTodo, patchTodo, deleteTodo } from './helpers/functions'
 import TodoContainer from './components/TodoContainer'
 import TodoForm from './components/TodoForm'
 const todosURL = "http://localhost:3000/todos"
@@ -27,13 +28,15 @@ class App extends Component {
       todos: [...this.state.todos, newTodo]
     })
 
-    fetch(todosURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newTodo)
-    })
+    postTodo(newTodo)
+  }
+
+  updateTodo = (updatedTodo) => {
+    let todos = this.state.todos.map(todo => todo.id === updatedTodo.id ? updatedTodo : todo)
+
+    this.setState({todos})
+
+    patchTodo(updatedTodo)
   }
 
   deleteTodo = (id) => {
@@ -43,15 +46,15 @@ class App extends Component {
       todos: filtered
     })
 
-    fetch(todosURL + `/${id}`, {method: 'DELETE'})
+    deleteTodo(id)
   }
 
   render() {
     return (
       <div className="App">
         <h1>Todo App</h1>
-        <TodoForm addTodo={this.addTodo} /> 
-        <TodoContainer deleteTodo={this.deleteTodo} todos={this.state.todos} />
+        <TodoForm submitAction={this.addTodo} /> 
+        <TodoContainer updateTodo={this.updateTodo} deleteTodo={this.deleteTodo} todos={this.state.todos} />
       </div>
     );
   }
