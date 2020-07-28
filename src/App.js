@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom'
 import './App.css';
 import { postTodo, patchTodo, deleteTodo } from './helpers/functions'
 import TodoContainer from './components/TodoContainer'
 import TodoForm from './components/TodoForm'
 import SignupForm from './components/SignupForm'
+import PrivateRoute from './components/PrivateRoute'
+import Home from './Home';
 const todosURL = "http://localhost:3000/todos"
 
 class App extends Component {
@@ -53,7 +56,7 @@ class App extends Component {
   }
 
   signUp = (user) => {
-    fetch('http://localhost:3000/users', {
+    return fetch('http://localhost:3000/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -79,9 +82,21 @@ class App extends Component {
     return (
       <div className="App">
         <h1>Todo App</h1>
-        <SignupForm signUp={this.signUp} alerts={this.state.alerts} />
-        <TodoForm submitAction={this.addTodo} /> 
-        <TodoContainer updateTodo={this.updateTodo} deleteTodo={this.deleteTodo} todos={this.state.todos} />
+        <Switch>
+          <PrivateRoute 
+            exact
+            path='/' 
+            component={Home} 
+            submitAction={this.addTodo}
+            updateTodo={this.updateTodo}
+            deleteTodo={this.deleteTodo}
+            todos={this.state.todos}
+          />
+          <Route path='/signup' render={(routerProps) =>{
+            return <SignupForm {...routerProps} signUp={this.signUp} alerts={this.state.alerts} /> }}
+          />
+          <Redirect to='/' />
+        </Switch>
       </div>
     );
   }
